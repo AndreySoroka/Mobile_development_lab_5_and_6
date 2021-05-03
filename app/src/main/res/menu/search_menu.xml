@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--item for our search view with its id-->
+    <item
+        android:id="@+id/actionSearch"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="Search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="collapseActionView|ifRoom" />
+
+    <item
+        android:id="@+id/actionAddMovie"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="add"
+        app:actionViewClass="androidx.appcompat.widget.ButtonBarLayout"
+        app:showAsAction="ifRoom" />
+
+
+</menu>

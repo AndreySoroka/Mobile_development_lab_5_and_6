@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="#FDED99"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:context=".Frag2">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <Button
+        android:id="@+id/buttonPieChart"
+        android:layout_width="190dp"
+        android:layout_height="35dp"
+        android:layout_below="@+id/buttonLineGraph"
+        android:layout_marginTop="7dp"
+        android:background="#0B41FF"
+        android:text="Діаграма"
+        app:backgroundTint="#DF05288F" />
+
+    <Button
+        android:id="@+id/buttonLineGraph"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:text="Графік "
+        app:backgroundTint="#A3CC1673" />
+
+</RelativeLayout>
