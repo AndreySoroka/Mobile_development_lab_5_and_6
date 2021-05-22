@@ -5,8 +5,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
+
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.koushikdutta.ion.Ion;
+
 import java.util.ArrayList;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder>  {
     private ArrayList<Movie> movies;
@@ -38,38 +41,39 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
 
-    @NonNull
+    public interface OnMovieListener {
+        void onMovieClick(int position);
+    }
     @Override
-    public MovieAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MovieAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View library = inflater.inflate(R.layout.item_movie, parent, false);
         return new ViewHolder(library, onMovieListener);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(MovieAdapter.ViewHolder holder, int position) {
         Movie movie = movies.get(position);
 
         holder.Title.setText(movie.getTitle());
         holder.Year.setText(movie.getYear());
         holder.imdbID.setText(movie.getimdbID());
         holder.Type.setText(movie.getType());
-
-        ImageView posterView = holder.PosterView;
-        posterView.setImageResource(movie.getPosterID());
-        holder.PosterView.setImageResource(movie.getPosterID());
+        Ion.with(holder.PosterView)
+                .load(movie.getPosterSRC());
     }
 
     @Override
     public int getItemCount() {
         return movies.size();
     }
-    public interface OnMovieListener {
-        void onMovieClick(int position);
-    }
+
 
     public void changeList(ArrayList<Movie> filterllist) {
         movies = filterllist;
         notifyDataSetChanged();
+    }
+    public ArrayList<Movie> getMovies() {
+        return movies;
     }
 }

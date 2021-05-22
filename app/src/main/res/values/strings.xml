@@ -3,29 +3,17 @@
     <string name="tab_text_1">Lab 1</string>
     <string name="tab_text_2">Lab 2</string>
     <string name="tab_text_3">Lab 3</string>
+    <string name="tab_text_4">Lab 4</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="movie_cover">movie_cover</string>
-
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <string name="title_activity_movie_info">movieInfoActivity</string>
-
-    <!-- Strings used for fragments for navigation -->
-
-
-    <string name="first_fragment_label">First Fragment</string>
-
-    <string name="second_fragment_label">Second Fragment</string>
-
     <string name="next">Next</string>
-
     <string name="previous">Previous</string>
-
     <string name="title">Title</string>
-
     <string name="type">Type</string>
-
     <string name="year">Year</string>
-
     <string name="add">ADD</string>
+    <string name="no_movies_found">No items found</string>
+    <string name="exception">Exception! No information found</string>
 </resources>

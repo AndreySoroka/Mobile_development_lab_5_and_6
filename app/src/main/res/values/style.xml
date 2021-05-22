@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="PictureStyle" parent="android:Theme">
+        <item name="android:cropToPadding">true</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:padding">3dp</item>
+    </style>
+</resources>

@@ -5,7 +5,7 @@ public class Movie {
     private final String Year;
     private final String imdbID;
     private final String Type;
-    private final int Poster;
+    private final String PosterSRC;
 
     private String Rated;
     private String Released;
@@ -22,12 +22,22 @@ public class Movie {
     private String imdbVotes;
     private String Production;
 
-    public Movie(String Title, String Year, String imdbID, String Type, int Poster) {
+
+    private boolean created = false;
+    public Movie(String Title, String Year, String imdbID, String Type, String PosterSRC) {
         this.Title = Title;
         this.Year = Year;
         this.imdbID = imdbID;
         this.Type = Type;
-        this.Poster = Poster;
+        this.PosterSRC = PosterSRC;
+    }
+    public Movie(String Title, String Type, String Year, boolean created) {
+        this.Title = Title;
+        this.Type = Type;
+        this.imdbID= "";
+        this.Year = Year;
+        this.PosterSRC = null;
+        this.created = created;
     }
 
     public void setInfo(String Rated, String Released, String Runtime, String Genre, String Director, String Writer, String Actors, String Plot, String Language, String Country, String Awards, String imdbRating, String imdbVotes, String Production){
@@ -59,8 +69,8 @@ public class Movie {
     public String getType() {
         return Type;
     }
-    public int getPosterID(){
-        return Poster;
+    public String getPosterSRC(){
+        return PosterSRC;
     }
     public String getRated() { return Rated; }
     public String getReleased() {return Released;}
@@ -93,5 +103,7 @@ public class Movie {
                 "<font color=#888888>Rating: </font> " + imdbRating + "<br><br> " +
                 "<font color=#888888>Plot: </font> " + Plot + "<br>" ;
     }
+    public boolean isCreated(){
+        return created;
+    }
 }
-

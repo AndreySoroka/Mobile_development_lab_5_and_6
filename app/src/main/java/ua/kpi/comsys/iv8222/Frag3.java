@@ -2,7 +2,6 @@ package ua.kpi.comsys.iv8222;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -16,14 +15,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -31,13 +30,15 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Scanner;
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
@@ -55,7 +56,7 @@ public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         Toolbar toolbar = (Toolbar)view.findViewById(R.id.toolbar);
         toolbar.setTitle("Search");
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
@@ -66,8 +67,6 @@ public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
 
     private void setUpRecyclerView(RecyclerView recyclerView, View view) {
         Context context = requireActivity().getApplicationContext();
-        if(library.isEmpty())
-            createLibrary(context);
         adapter = new MovieAdapter(library, this);
 
         RecyclerView.ItemDecoration itemDecoration = new
@@ -97,10 +96,10 @@ public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
                     @Override
                     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                         int position = viewHolder.getAdapterPosition();
-                        String notification = "Movie " + library.get(position).getTitle() + " deleted";
-                        Toast.makeText(getContext(), notification, Toast.LENGTH_SHORT).show();
-                        library.remove(position);
-                        adapter.changeList(library);
+                        Movie deleted = adapter.getMovies().remove(position);
+                        library.remove(deleted);
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(getContext(), "Movie " + deleted.getTitle()  + " deleted", Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -135,35 +134,57 @@ public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
 
     }
-    private void createLibrary(Context context) {
-        Scanner scanner = new Scanner(getResources().openRawResource(R.raw.movieslist));
-        try {
-            String data = scanner.nextLine();
-            JSONObject jsonObject = new JSONObject(data);
-            JSONArray moviesInJSON = jsonObject.getJSONArray("Search");
-            for (int i = 0; i < moviesInJSON.length(); i++) {
-                JSONObject c = moviesInJSON.getJSONObject(i);
-                String Title = c.getString("Title");
-                String Year = c.getString("Year");
-                String imdbID = c.getString("imdbID");
-                String Type = c.getString("Type");
-                String Poster = c.getString("Poster").toLowerCase();
 
 
-                int formatIndex = Poster.lastIndexOf(".");
-                if(formatIndex == -1)
-                    formatIndex = 0;
-                String post = Poster.substring(0, formatIndex);
 
-                int PosterID = getResources().getIdentifier(post, "drawable", getContext().getPackageName());
-                library.add(new Movie(Title, Year, imdbID, Type, PosterID));
-            }
-        } catch (JSONException e) {
-            Toast.makeText(context, "JSON exception!", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } catch (NoSuchElementException e){
-            Toast.makeText(context, "Exception while scanning file!", Toast.LENGTH_SHORT).show();
-        }
+    private void onSearch(String request) {
+
+        TextView noFoundMsg = (TextView)  requireView().findViewById(R.id.no_movie_msg);
+        noFoundMsg.setVisibility(View.GONE);
+
+        ProgressBar progressBar = (ProgressBar)requireView().findViewById(R.id.loading_movies);
+        progressBar.setVisibility(View.VISIBLE);
+
+        String API_KEY = "ef531fda";
+        String url = String.format("http://www.omdbapi.com/?apikey=%s&s=\"%s\"&page=1", API_KEY, request);
+
+        AndroidNetworking.get(url)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray moviesInJSON = response.getJSONArray("Search");
+
+                            for (int i = 0; i < moviesInJSON.length(); i++) {
+                                JSONObject c = moviesInJSON.getJSONObject(i);
+                                String Title = c.getString("Title");
+                                String Year = c.getString("Year");
+                                String imdbID = c.getString("imdbID");
+                                String Type = c.getString("Type");
+                                String PosterURL = c.getString("Poster");
+
+
+                                library.add(new Movie(Title, Year, imdbID, Type, PosterURL));
+                            }
+                        } catch (JSONException e) {
+                            Toast.makeText(getContext(), "JSON exception!", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+
+                        progressBar.setVisibility(View.GONE);
+                        if(library.isEmpty())
+                            noFoundMsg.setVisibility(View.VISIBLE);
+                        adapter.changeList(library);
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+
+                    }
+
+
+                });
     }
     public static void addMovie(Movie movie){
         library.add(movie);
@@ -172,13 +193,11 @@ public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
     }
     @Override
     public void onMovieClick(int position) {
-        String imdb = library.get(position).getimdbID();
-        Resources res  = getContext().getResources();
-        int infoId = res.getIdentifier(imdb, "raw", getContext().getPackageName());
+        String imdb = adapter.getMovies().get(position).getimdbID();
 
-        if(infoId != 0) {
+        if(!imdb.equals("")) {
             Intent intent = new Intent(requireActivity(), MovieActivity.class);
-            intent.putExtra("file", infoId);
+            intent.putExtra("imdb", imdb);
             startActivity(intent);
         }
     }
@@ -199,17 +218,23 @@ public class Frag3 extends Fragment implements MovieAdapter.OnMovieListener  {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                ArrayList<Movie> filtered = new ArrayList<>();
+                ArrayList<Movie> found = new ArrayList<>();
+                for (Movie item: library) {
+                    if(!item.isCreated())
+                        found.add(item);
+                }
+                library.removeAll(found);
+                if(library.isEmpty()){
+                    TextView noFoundMsg = (TextView)  requireView().findViewById(R.id.no_movie_msg);
+                    noFoundMsg.setVisibility(View.VISIBLE);
 
-                for (Movie item : library) {
-                    if (item.getTitle().toLowerCase().contains(newText.toLowerCase())) {
-                        filtered.add(item);
-                    }
+                    ProgressBar progressBar = (ProgressBar)requireView().findViewById(R.id.loading_movies);
+                    progressBar.setVisibility(View.GONE);
                 }
-                if (filtered.isEmpty()) {
-                    Toast.makeText(getContext(), "No Movie Found.", Toast.LENGTH_SHORT).show();
-                }
-                adapter.changeList(filtered);
+                adapter.changeList(library);
+
+                if(newText.length() > 2)
+                    onSearch(newText);
                 return false;
             }
         });

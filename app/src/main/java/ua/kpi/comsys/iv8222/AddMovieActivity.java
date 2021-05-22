@@ -1,5 +1,7 @@
 package ua.kpi.comsys.iv8222;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,8 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class AddMovieActivity extends AppCompatActivity {
 
@@ -35,10 +35,7 @@ public class AddMovieActivity extends AppCompatActivity {
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().equals(""))
-                    addButton.setEnabled(true);
-                else
-                    addButton.setEnabled(false);
+                addButton.setEnabled(!s.toString().equals(""));
             }
             @Override
             public void afterTextChanged(Editable s) {
@@ -51,7 +48,7 @@ public class AddMovieActivity extends AppCompatActivity {
                 String newTitle = titleEditText.getText().toString();
                 String newType = typeEditText.getText().toString();
                 String newYear = yearEditText.getText().toString();
-                Movie newMovie = new Movie(newTitle, newType, "", newYear, 0);
+                Movie newMovie = new Movie(newTitle, newType,  newYear, true);
                 Frag3.addMovie(newMovie);
                 finish();
             }
